@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Representative profile page' do
+RSpec.describe 'representatives/show', type: :view do
   it 'renders successfully for a representative with all fields present' do
     rep = Representative.create!(
       name: 'Adam Choe',
@@ -18,22 +18,21 @@ RSpec.describe 'Representative profile page' do
       bioguide_id: 'D000896',
       ocdid: '000896'
     )
+    assign(:representative, rep)
 
-    get representative_path(rep)
+    render
 
-    expect(response).to have_http_status(:success)
-    expect(response.body).to include('Adam Choe')
+    expect(rendered).to include('Adam Choe')
+    expect(rendered).to include('Democratic')
   end
 
   it 'renders successfully for a representative with missing optional fields' do
     rep = Representative.create!(name: 'Jane Doe', ocdid: '999999')
-    # party, birthday, gender, address, phone, website, twitter, facebook,
-    # youtube, contact_form_url, bioguide_id, photo_url all left nil
+    assign(:representative, rep)
 
-    get representative_path(rep)
+    render
 
-    expect(response).to have_http_status(:success)
-    expect(response.body).to include('Jane Doe')
-    expect(response.body).to include('No photo available')
+    expect(rendered).to include('Jane Doe')
+    expect(rendered).to include('No photo available')
   end
 end
