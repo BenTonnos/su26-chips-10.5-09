@@ -49,16 +49,15 @@ class Representative < ApplicationRecord
   end
 
   def self.find_rep(official, title: '', ocdid: '')
-    
     rep = Representative.find_by(ocdid: ocdid)
-    
+
     if rep
       rep.update(
-      name: official['name'],
-      ocdid: ocdid,
-      title: title,
-      party: official['party'],
-      photo_url: official['photo_url']
+        name: official['name'],
+        ocdid: ocdid,
+        title: title,
+        party: official['party'],
+        photo_url: official['photo_url']
       )
     else
       rep = Representative.create(

@@ -20,19 +20,13 @@ require 'rails_helper'
 # We recommend creating a file for each model in the database.
 
 RSpec.describe Representative do
-
   describe '.find_rep' do
     it 'does not create duplicate representatives' do
+      official = { 'name' => 'Francisco De La Riega', 'party' => 'Democratic', 'photo_url' => 'https://myimage.com/' }
 
-      official = {
-         'name' => 'Francisco De La Riega',
-         'party' => 'Democratic',
-         'photo_url' => 'https://myimage.com/'
-        }
-
-      Representative.find_rep(official, title: 'Representative', ocdid: '12345')
-      Representative.find_rep(official, title: 'Representative', ocdid: '12345')
-      expect(Representative.count).to eq(1)
+      described_class.find_rep(official, title: 'Representative', ocdid: '12345')
+      described_class.find_rep(official, title: 'Representative', ocdid: '12345')
+      expect(described_class.count).to eq(1)
     end
   end
 end

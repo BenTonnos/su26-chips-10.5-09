@@ -95,5 +95,11 @@ std_fips_code: '001' }
 std_fips_code: '001' }
       expect(response).to redirect_to root_path
     end
+
+    it 'redirects to home page if invalid county' do
+      get :county,
+          params: { use_route: '/state/:state_symbol/county/:std_fips_code', state_symbol: 'CA', std_fips_code: '000' }
+      expect(response).to redirect_to root_path
+    end
   end
 end
