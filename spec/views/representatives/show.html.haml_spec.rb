@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'representatives/show' do
-  it 'renders successfully for a representative with all fields present' do
-    rep = Representative.create!(
+  let(:representative) do
+    Representative.create!(
       name: 'Adam Choe',
       title: 'representative',
       party: 'Democratic',
@@ -18,10 +18,11 @@ RSpec.describe 'representatives/show' do
       bioguide_id: 'D000896',
       ocdid: '000896'
     )
-    assign(:representative, rep)
+  end
 
+  it 'renders successfully for a representative with all fields present' do
+    assign(:representative, representative)
     render
-
     expect(rendered).to include('Adam Choe')
     expect(rendered).to include('Democratic')
   end
