@@ -135,3 +135,67 @@ RSpec.describe Representative do
   end
 end
 
+# integration test using webmock
+describe '.geocodio_search and .civic_api_to_representative_params' do
+  it 'fetches and parses a representative from a stubbed Geocodio response' do
+    fixture = {
+      'results' => [
+        {
+          'response' => {
+            'results' => [
+              {
+                'fields' => {
+                  'congressional_districts' => [
+                    {
+                      'current_legislators' => [
+                        {
+                          'type' => 'representative',
+                          'bio' => {
+                            'first_name' => 'Adam',
+                            'last_name' => 'Choe',
+                            'party' => 'Democratic',
+                            'birthday' => '2026-07-31',
+                            'gender' => 'M',
+                            'photo_url' => 'https://www.congress.gov/img/member/example.jpg'
+                          },
+                          'contact' => {
+                            'url' => 'https://bleacherreport.com',
+                            'address' => 'Bancroft Way',
+                            'phone' => '101-101-1001',
+                            'contact_form' => nil
+                          },
+                          'social' => {
+                            'twitter' => 'repachoe',
+                            'facebook' => 'repachoe',
+                            'youtube' => nil
+                          },
+                          'references' => {
+                            'bioguide_id' => 'D000896',
+                            'govtrack_id' => '000896'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }.to_json
+
+    stub_request(:post, /api\.geocod\.io/)
+      .to_return(status: 200, body: fixture, headers: { 'Content-Type' => 'application/json' })
+
+    response = Representative.geocodio_search('Berkeley, CA')
+    reps = Representative.civic_api_to_representative_params(response)
+
+    expect(reps.length).to eq(1)
+    rep = reps.first
+    expect(rep.name).to eq('Adam Choe')
+    expect(rep.party).to eq('Democratic')
+    expect(rep.bioguide_id).to eq('D000896')
+    expect(rep.ocdid).to eq('000896')
+  end
+end
