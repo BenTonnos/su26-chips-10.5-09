@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'representatives/show', type: :view do
+RSpec.describe 'representatives/show' do
   it 'renders successfully for a representative with all fields present' do
     rep = Representative.create!(
       name: 'Adam Choe',

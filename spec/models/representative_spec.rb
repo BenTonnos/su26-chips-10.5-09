@@ -30,19 +30,17 @@ require 'rails_helper'
 # We recommend creating a file for each model in the database.
 
 RSpec.describe Representative do
-
   describe '.find_rep' do
     it 'does not create duplicate representatives' do
-
       official = {
-         'name' => 'Francisco De La Riega',
+        'name' => 'Francisco De La Riega',
          'party' => 'Democratic',
          'photo_url' => 'https://myimage.com/'
-        }
+      }
 
-      Representative.find_rep(official, title: 'Representative', ocdid: '12345')
-      Representative.find_rep(official, title: 'Representative', ocdid: '12345')
-      expect(Representative.count).to eq(1)
+      described_class.find_rep(official, title: 'Representative', ocdid: '12345')
+      described_class.find_rep(official, title: 'Representative', ocdid: '12345')
+      expect(described_class.count).to eq(1)
     end
   end
 
@@ -78,7 +76,7 @@ RSpec.describe Representative do
     end
 
     it 'populates all fields from a full Geocodio response' do
-      rep = Representative.new
+      rep = described_class.new
       rep.update_from_geocodio(full_official)
 
       expect(rep.party).to eq('Democratic')
@@ -106,7 +104,7 @@ RSpec.describe Representative do
         }
       }
 
-      rep = Representative.new
+      rep = described_class.new
       expect { rep.update_from_geocodio(minimal_official) }.not_to raise_error
 
       expect(rep.party).to eq('Independent')
@@ -119,17 +117,17 @@ RSpec.describe Representative do
 
   describe '#display_photo_url' do
     it 'returns photo_url when present' do
-      rep = Representative.new(photo_url: 'https://example.com/photo.jpg', bioguide_id: 'D000896')
+      rep = described_class.new(photo_url: 'https://example.com/photo.jpg', bioguide_id: 'D000896')
       expect(rep.display_photo_url).to eq('https://example.com/photo.jpg')
     end
 
     it 'falls back to a constructed URL from bioguide_id when photo_url is missing' do
-      rep = Representative.new(photo_url: nil, bioguide_id: 'D000896')
+      rep = described_class.new(photo_url: nil, bioguide_id: 'D000896')
       expect(rep.display_photo_url).to eq('https://theunitedstates.io/images/congress/450x550/D000896.jpg')
     end
 
     it 'returns nil when both photo_url and bioguide_id are missing' do
-      rep = Representative.new(photo_url: nil, bioguide_id: nil)
+      rep = described_class.new(photo_url: nil, bioguide_id: nil)
       expect(rep.display_photo_url).to be_nil
     end
   end
