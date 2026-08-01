@@ -32,11 +32,7 @@ require 'rails_helper'
 RSpec.describe Representative do
   describe '.find_rep' do
     it 'does not create duplicate representatives' do
-      official = {
-        'name' => 'Francisco De La Riega',
-         'party' => 'Democratic',
-         'photo_url' => 'https://myimage.com/'
-      }
+      official = { 'name' => 'Francisco De La Riega', 'party' => 'Democratic', 'photo_url' => 'https://myimage.com/' }
 
       described_class.find_rep(official, title: 'Representative', ocdid: '12345')
       described_class.find_rep(official, title: 'Representative', ocdid: '12345')
@@ -74,27 +70,9 @@ RSpec.describe Representative do
         }
       }
     end
-
-    it 'populates all fields from a full Geocodio response' do
-      rep = described_class.new
-      rep.update_from_geocodio(full_official)
-
-      expect(rep.party).to eq('Democratic')
-      expect(rep.birthday).to eq(Date.parse('2026-07-31'))
-      expect(rep.gender).to eq('M')
-      expect(rep.address).to eq('Bancroft Way')
-      expect(rep.phone).to eq('101-101-1001')
-      expect(rep.website).to eq('https://bleacherreport.com')
-      expect(rep.contact_form_url).to be_nil
-      expect(rep.twitter).to eq('repachoe')
-      expect(rep.facebook).to eq('repachoe')
-      expect(rep.youtube).to be_nil
-      expect(rep.bioguide_id).to eq('D000896')
-      expect(rep.ocdid).to eq('000896')
-    end
-
-    it 'gracefully handles a response missing entire blocks (contact, social, references)' do
-      minimal_official = {
+    let(:representative) { described_class.new }
+    let(:minimal_official) do
+      {
         'name' => 'Jane Doe',
         'type' => 'senator',
         'bio' => {
@@ -103,15 +81,60 @@ RSpec.describe Representative do
           'party' => 'Independent'
         }
       }
+    end
 
-      rep = described_class.new
-      expect { rep.update_from_geocodio(minimal_official) }.not_to raise_error
+    let(:representative_two) { described_class.new }
 
-      expect(rep.party).to eq('Independent')
-      expect(rep.address).to be_nil
-      expect(rep.phone).to be_nil
-      expect(rep.twitter).to be_nil
-      expect(rep.bioguide_id).to be_nil
+    before do
+      representative.update_from_geocodio(full_official)
+    end
+
+    it 'sets personal information' do
+      expect(representative.party).to eq('Democratic')
+      expect(representative.birthday).to eq(Date.parse('2026-07-31'))
+      expect(representative.gender).to eq('M')
+    end
+
+    it 'sets contact information' do
+      expect(representative.address).to eq('Bancroft Way')
+      expect(representative.phone).to eq('101-101-1001')
+      expect(representative.website).to eq('https://bleacherreport.com')
+    end
+
+    it 'sets social information' do
+      expect(representative.twitter).to eq('repachoe')
+      expect(representative.facebook).to eq('repachoe')
+      expect(representative.youtube).to be_nil
+    end
+
+    it 'sets reference information' do
+      expect(representative.bioguide_id).to eq('D000896')
+      expect(representative.ocdid).to eq('000896')
+    end
+
+    it 'handles missing optional blocks without errors' do
+      expect { representative_two.update_from_geocodio(minimal_official) }
+        .not_to raise_error
+    end
+
+    it 'sets available fields from partial responses' do
+      representative_two.update_from_geocodio(minimal_official)
+      expect(representative_two.party).to eq('Independent')
+    end
+
+    it 'leaves missing contact fields blank' do
+      representative_two.update_from_geocodio(minimal_official)
+      expect(representative_two.address).to be_nil
+    end
+
+    it 'leaves missing social fields blank' do
+      representative_two.update_from_geocodio(minimal_official)
+      expect(representative_two.twitter).to be_nil
+    end
+
+    it 'leaves missing reference fields blank' do
+      representative_two.update_from_geocodio(minimal_official)
+      expect(representative_two.bioguide_id).to be_nil
     end
   end
 
@@ -131,69 +154,90 @@ RSpec.describe Representative do
       expect(rep.display_photo_url).to be_nil
     end
   end
-end
 
-# integration test using webmock
-describe '.geocodio_search and .civic_api_to_representative_params' do
-  it 'fetches and parses a representative from a stubbed Geocodio response' do
-    fixture = {
-      'results' => [
-        {
-          'response' => {
-            'results' => [
-              {
-                'fields' => {
-                  'congressional_districts' => [
-                    {
-                      'current_legislators' => [
-                        {
-                          'type' => 'representative',
-                          'bio' => {
-                            'first_name' => 'Adam',
-                            'last_name' => 'Choe',
-                            'party' => 'Democratic',
-                            'birthday' => '2026-07-31',
-                            'gender' => 'M',
-                            'photo_url' => 'https://www.congress.gov/img/member/example.jpg'
-                          },
-                          'contact' => {
-                            'url' => 'https://bleacherreport.com',
-                            'address' => 'Bancroft Way',
-                            'phone' => '101-101-1001',
-                            'contact_form' => nil
-                          },
-                          'social' => {
-                            'twitter' => 'repachoe',
-                            'facebook' => 'repachoe',
-                            'youtube' => nil
-                          },
-                          'references' => {
-                            'bioguide_id' => 'D000896',
-                            'govtrack_id' => '000896'
-                          }
-                        }
-                      ]
-                    }
-                  ]
+  # integration test using webmock
+  describe '.geocodio_search and .civic_api_to_representative_params' do
+    let(:fixture) do
+      {
+        'results' => [
+          {
+            'response' => {
+              'results' => [
+                {
+                  'fields' => {
+                    'congressional_districts' => [
+                      {
+                        'current_legislators' => [
+                          full_official_two
+                        ]
+                      }
+                    ]
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
+        ]
+      }.to_json
+    end
+    let(:response) { described_class.geocodio_search('Berkeley, CA') }
+    let(:representatives) { described_class.civic_api_to_representative_params(response) }
+    let(:representative) { representatives.first }
+
+    let(:full_official_two) do
+      {
+        'name' => 'Adam Choe',
+        'type' => 'representative',
+        'bio' => {
+          'first_name' => 'Adam',
+          'last_name' => 'Choe',
+          'party' => 'Democratic',
+          'birthday' => '2026-07-31',
+          'gender' => 'M',
+          'photo_url' => 'https://www.congress.gov/img/member/example.jpg'
+        },
+        'contact' => {
+          'url' => 'https://bleacherreport.com',
+          'address' => 'Bancroft Way',
+          'phone' => '101-101-1001',
+          'contact_form' => nil
+        },
+        'social' => {
+          'twitter' => 'repachoe',
+          'facebook' => 'repachoe',
+          'youtube' => nil
+        },
+        'references' => {
+          'bioguide_id' => 'D000896',
+          'govtrack_id' => '000896'
         }
-      ]
-    }.to_json
+      }
+    end
 
-    stub_request(:post, /api\.geocod\.io/)
-      .to_return(status: 200, body: fixture, headers: { 'Content-Type' => 'application/json' })
+    before do
+      stub_request(:post, /api\.geocod\.io/)
+        .to_return(status: 200, body: fixture,
+                   headers: { 'Content-Type' => 'application/json' })
+    end
 
-    response = Representative.geocodio_search('Berkeley, CA')
-    reps = Representative.civic_api_to_representative_params(response)
+    it 'returns one representative' do
+      expect(representatives.length).to eq(1)
+    end
 
-    expect(reps.length).to eq(1)
-    rep = reps.first
-    expect(rep.name).to eq('Adam Choe')
-    expect(rep.party).to eq('Democratic')
-    expect(rep.bioguide_id).to eq('D000896')
-    expect(rep.ocdid).to eq('000896')
+    it 'parses the representative name' do
+      expect(representative.name).to eq('Adam Choe')
+    end
+
+    it 'parses the representative party' do
+      expect(representative.party).to eq('Democratic')
+    end
+
+    it 'parses the representative bioguide id' do
+      expect(representative.bioguide_id).to eq('D000896')
+    end
+
+    it 'parses the representative ocdid' do
+      expect(representative.ocdid).to eq('000896')
+    end
   end
 end
