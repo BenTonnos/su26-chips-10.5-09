@@ -4,14 +4,24 @@
 #
 # Table name: representatives
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  ocdid      :string
-#  party      :string
-#  photo_url  :string
-#  title      :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id               :integer          not null, primary key
+#  address          :string
+#  birthday         :date
+#  contact_form_url :string
+#  facebook         :string
+#  gender           :string
+#  name             :string
+#  ocdid            :string
+#  party            :string
+#  phone            :string
+#  photo_url        :string
+#  title            :string
+#  twitter          :string
+#  website          :string
+#  youtube          :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  bioguide_id      :string
 #
 class Representative < ApplicationRecord
   has_many :news_items, dependent: :delete_all
@@ -39,10 +49,7 @@ class Representative < ApplicationRecord
     @legislators.each_with_index do |official, _index|
       official['name'] = "#{official.dig('bio', 'first_name')} #{official.dig('bio', 'last_name')}"
       title = official['type']
-      # Inspect all the data that's there to make part 1 easier.
-      # Rails.logger.debug official
-      # official.dig('bio', 'party')
-      ocdid = official['govtrack_id']
+      ocdid = official.dig('references', 'govtrack_id')
       reps << Representative.find_rep(official, ocdid: ocdid, title: title)
     end
     reps
@@ -50,34 +57,62 @@ class Representative < ApplicationRecord
 
   def self.find_rep(official, title: '', ocdid: '')
     rep = Representative.find_by(ocdid: ocdid)
-
-    if rep
-      rep.update(
-        name: official['name'],
-        ocdid: ocdid,
-        title: title,
-        party: official['party'],
-        photo_url: official['photo_url']
-      )
-    else
-      rep = Representative.create(
-        name: official['name'],
-        ocdid: ocdid,
-        title: title,
-        party: official['party'],
-        photo_url: official['photo_url']
-      )
-    end
+    rep ||= Representative.new(ocdid: ocdid)
+    rep.update_from_geocodio(official.merge('type' => title))
     rep
   end
 
   def update_from_geocodio(official)
-    self.title = official['type']
-    self.ocdid = official['govtrack_id']
-    self.party = official['party']
-    self.photo_url = official['photo_url']
-    # TODO: store the address, phone and website
+    assign_attributes(geocodio_attributes(official))
     save!
     self
+  end
+
+  def geocodio_attributes(official)
+    basic_attributes(official)
+      .merge(contact_attributes(official))
+      .merge(social_attributes(official))
+      .merge(reference_attributes(official))
+  end
+
+  def basic_attributes(official)
+    {
+      name: official['name'] || name,
+      title: official['type'],
+      party: official.dig('bio', 'party'),
+      birthday: official.dig('bio', 'birthday'),
+      gender: official.dig('bio', 'gender'),
+      photo_url: official.dig('bio', 'photo_url')
+    }
+  end
+
+  def contact_attributes(official)
+    {
+      address: official.dig('contact', 'address'),
+      phone: official.dig('contact', 'phone'),
+      contact_form_url: official.dig('contact', 'contact_form'),
+      website: official.dig('contact', 'url')
+    }
+  end
+
+  def social_attributes(official)
+    {
+      twitter: official.dig('social', 'twitter'),
+      facebook: official.dig('social', 'facebook'),
+      youtube: official.dig('social', 'youtube')
+    }
+  end
+
+  def reference_attributes(official)
+    {
+      ocdid: official.dig('references', 'govtrack_id') || ocdid,
+      bioguide_id: official.dig('references', 'bioguide_id')
+    }
+  end
+
+  def display_photo_url
+    photo_url.presence || (if bioguide_id.present?
+                             "https://theunitedstates.io/images/congress/450x550/#{bioguide_id}.jpg"
+                           end)
   end
 end

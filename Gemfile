@@ -143,3 +143,7 @@ group :production, :staging do
   # Use postgresql as the database for Active Record in production (Heroku)
   gem 'pg'
 end
+
+group :test do
+  gem 'webmock'
+end

@@ -2,3 +2,86 @@
   .row.text-center
     .col-12
       %h1.text-center= @representative&.name
+
+  .row
+    .col-12.text-center
+      - if @representative&.display_photo_url.present?
+        = image_tag @representative.display_photo_url, alt: @representative.name, class: 'rep-photo'
+      - else
+        %p
+          %em No photo available
+
+  .row
+    .col-12
+      %p
+        %strong Title:
+        = @representative&.title.presence || 'Unknown'
+      %p
+        %strong Party:
+        = @representative&.party.presence || 'Unknown'
+
+      - if @representative&.birthday.present?
+        %p
+          %strong Birthday:
+          = @representative.birthday.strftime('%B %-d, %Y')
+
+      - if @representative&.gender.present?
+        %p
+          %strong Gender:
+          = @representative.gender
+
+  .row
+    .col-12
+      %h2 Contact
+      - if @representative&.address.present?
+        %p
+          %strong Office:
+          = @representative.address
+      - if @representative&.phone.present?
+        %p
+          %strong Phone:
+          = @representative.phone
+      - if @representative&.website.present?
+        %p
+          %strong Website:
+          = link_to @representative.website, @representative.website
+      - if @representative&.contact_form_url.present?
+        %p
+          %strong Contact form:
+          = link_to 'Send a message', @representative.contact_form_url
+
+  - if @representative && @representative.twitter.present?
+    .row
+      .col-12
+        %h2 Social
+        %ul
+          - if @representative.twitter.present?
+            %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
+          - if @representative.facebook.present?
+            %li= link_to 'Facebook', "https://facebook.com/#{@representative.facebook}"
+          - if @representative.youtube.present?
+            %li= link_to 'YouTube', "https://youtube.com/#{@representative.youtube}"
+
+  - if @representative && @representative.facebook.present?
+    .row
+      .col-12
+        %h2 Social
+        %ul
+          - if @representative.twitter.present?
+            %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
+          - if @representative.facebook.present?
+            %li= link_to 'Facebook', "https://facebook.com/#{@representative.facebook}"
+          - if @representative.youtube.present?
+            %li= link_to 'YouTube', "https://youtube.com/#{@representative.youtube}"
+
+  - if @representative && @representative.youtube.present?
+    .row
+      .col-12
+        %h2 Social
+        %ul
+          - if @representative.twitter.present?
+            %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
+          - if @representative.facebook.present?
+            %li= link_to 'Facebook', "https://facebook.com/#{@representative.facebook}"
+          - if @representative.youtube.present?
+            %li= link_to 'YouTube', "https://youtube.com/#{@representative.youtube}"

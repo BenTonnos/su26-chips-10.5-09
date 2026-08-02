@@ -2,14 +2,24 @@
 #
 # Table name: representatives
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  ocdid      :string
-#  party      :string
-#  photo_url  :string
-#  title      :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id               :integer          not null, primary key
+#  address          :string
+#  birthday         :date
+#  contact_form_url :string
+#  facebook         :string
+#  gender           :string
+#  name             :string
+#  ocdid            :string
+#  party            :string
+#  phone            :string
+#  photo_url        :string
+#  title            :string
+#  twitter          :string
+#  website          :string
+#  youtube          :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  bioguide_id      :string
 #
 john_doe:
     id: 1
