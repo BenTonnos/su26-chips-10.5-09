@@ -32,13 +32,23 @@ end
 
 Then /I click the county "(.*)"/i do |county_name|
   # Same as above, you might find this helpful.
+  expect(page).to have_css("path[data-county-name='#{county_name}']")
+  visit search_representatives_path("#{county_name}, CA")
 end
 
 Then /I click the county with FIPS Code "(.*)"/i do |fips_code|
   # Same as above, you might find this helpful.
+  expect(page).to have_css("path[data-county-fips-code='#{fips_code}']")
+  county_name = find("path[data-county-fips-code='#{fips_code}']")['data-county-name']
+  visit search_representatives_path("#{county_name}, CA")
 end
 
 Then /I should see (\d+) (?:states|counties)/i do |count|
   # How many counties should the map render
   # You might use this as a check that the right number of elements are rendered.
+  expect(all('path.actionmap-view-region').size).to eq(count.to_i)
+end
+
+Then /I should see representative results/i do
+  expect(page).to have_content('Francisco De La Riega')
 end
