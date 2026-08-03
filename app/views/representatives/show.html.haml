@@ -13,6 +13,7 @@
 
   .row
     .col-12
+      %h2 Bio
       %p
         %strong Title:
         = @representative&.title.presence || 'Unknown'
@@ -50,34 +51,10 @@
           %strong Contact form:
           = link_to 'Send a message', @representative.contact_form_url
 
-  - if @representative && @representative.twitter.present?
+  - if @representative
     .row
       .col-12
-        %h2 Social
-        %ul
-          - if @representative.twitter.present?
-            %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
-          - if @representative.facebook.present?
-            %li= link_to 'Facebook', "https://facebook.com/#{@representative.facebook}"
-          - if @representative.youtube.present?
-            %li= link_to 'YouTube', "https://youtube.com/#{@representative.youtube}"
-
-  - if @representative && @representative.facebook.present?
-    .row
-      .col-12
-        %h2 Social
-        %ul
-          - if @representative.twitter.present?
-            %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
-          - if @representative.facebook.present?
-            %li= link_to 'Facebook', "https://facebook.com/#{@representative.facebook}"
-          - if @representative.youtube.present?
-            %li= link_to 'YouTube', "https://youtube.com/#{@representative.youtube}"
-
-  - if @representative && @representative.youtube.present?
-    .row
-      .col-12
-        %h2 Social
+        %h2 Socials
         %ul
           - if @representative.twitter.present?
             %li= link_to 'Twitter', "https://twitter.com/#{@representative.twitter}"
