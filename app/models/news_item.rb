@@ -6,6 +6,7 @@
 #
 #  id                :integer          not null, primary key
 #  description       :text
+#  issue             :string
 #  link              :string           not null
 #  title             :string           not null
 #  created_at        :datetime         not null
@@ -24,5 +25,27 @@ class NewsItem < ApplicationRecord
     NewsItem.find_by(
       representative_id: representative_id
     )
+  end
+
+  def self.issues
+    [
+      'Free Speech',
+      'Immigration',
+      'Terrorism',
+      'Social Security and Medicare',
+      'Abortion',
+      'Student Loans',
+      'Gun Control',
+      'Unemployment',
+      'Climate Change',
+      'Homelessness',
+      'Racism',
+      'Tax Reform',
+      'Net Neutrality',
+      'Religious Freedom',
+      'Border Security',
+      'Minimum Wage',
+      'Equal Pay'
+    ]
   end
 end
