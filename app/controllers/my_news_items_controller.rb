@@ -3,12 +3,20 @@
 class MyNewsItemsController < ApplicationController
   before_action :require_login!
 
-  before_action :set_representative
+  before_action :set_representative, only: %i[new create edit update destroy]
   before_action :set_representatives_list
   before_action :set_news_item, only: %i[edit update destroy]
 
   def new
     @news_item = NewsItem.new
+  end
+
+  def search
+    if params.dig(:news_item, :representative_id).present?
+      @selected_representative = Representative.find(params[:news_item][:representative_id])
+    end
+
+    @issue = params.dig(:news_item, :issue)
   end
 
   def edit; end
