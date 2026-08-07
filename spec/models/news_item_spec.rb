@@ -51,7 +51,11 @@ RSpec.describe NewsItem do
   describe '.currents_api_search' do
     let(:fixture) do
       { 'news' => Array.new(6) do |i|
-        { 'title' => "Article #{i}", 'url' => "https://example.com/#{i}", 'description' => "Desc #{i}" }
+        { 
+          'title' => "Article #{i}", 
+          'url' => "https://example.com/#{i}", 
+          'description' => "Desc #{i}" 
+        }
       end }.to_json
     end
 
