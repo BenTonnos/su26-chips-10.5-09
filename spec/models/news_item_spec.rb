@@ -47,4 +47,22 @@ RSpec.describe NewsItem do
       expect(described_class.issues).to match_array(expected_issues)
     end
   end
+
+  describe '.currents_api_search' do
+    let(:fixture) do
+      { 'news' => Array.new(6) { |i| { 'title' => "Article #{i}", 'url' => "https://example.com/#{i}", 'description' => "Desc #{i}" } } }.to_json
+    end
+
+    it 'returns the top 5 articles from the API' do
+      stub_request(:get, /api\.currentsapi\.services/).to_return(status: 200, body: fixture)
+      articles = described_class.currents_api_search('Immigration')
+      expect(articles.length).to eq(5)
+      expect(articles.first).to eq(title: 'Article 0', link: 'https://example.com/0', description: 'Desc 0')
+    end
+
+    it 'returns an empty array when the API call fails' do
+      stub_request(:get, /api\.currentsapi\.services/).to_return(status: 500, body: '')
+      expect(described_class.currents_api_search('Immigration')).to eq([])
+    end
+  end
 end
