@@ -1,0 +1,15 @@
+%h1.text-center New news article
+
+%p
+  %strong Representative:
+  - if @selected_representative.present?
+    = link_to @selected_representative.name, @selected_representative
+  - else
+    Not submitted
+
+%p
+  %strong Issue:
+  - if @issue.present?
+    = @issue
+  - else
+    Not submitted

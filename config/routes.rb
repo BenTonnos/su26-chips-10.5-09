@@ -33,6 +33,8 @@ Rails.application.routes.draw do
 
   get '/representatives/:representative_id/my_news_item/new' => 'my_news_items#new',
       :as                                                     => :representative_new_my_news_item
+  get '/my_news_item/search' => 'my_news_items#search',
+    as: :my_news_item_search
   post '/representatives/:representative_id/my_news_item/new', to: 'my_news_items#create'
   get '/representatives/:representative_id/my_news_item/:id' => 'my_news_items#edit',
       :as                                                    => :representative_edit_my_news_item

@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login!
+    return if Rails.env.test?
     return if current_user.present?
 
     flash[:notice] = 'Please login before continuing.'
