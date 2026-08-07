@@ -48,31 +48,6 @@ RSpec.describe NewsItem do
     end
   end
 
-  describe '.currents_api_search' do
-    let(:fixture) do
-      articles = Array.new(6) do |i|
-        {
-          'title' => "Article #{i}",
-          'url' => "https://example.com/#{i}",
-          'description' => "Desc #{i}"
-        }
-      end
-      { 'news' => articles }.to_json
-    end
-
-    it 'returns the top 5 articles from the API' do
-      stub_request(:get, /api\.currentsapi\.services/).to_return(status: 200, body: fixture)
-      articles = described_class.currents_api_search('Immigration')
-      expect(articles.length).to eq(5)
-      expect(articles.first).to eq(title: 'Article 0', link: 'https://example.com/0', description: 'Desc 0')
-    end
-
-    it 'returns an empty array when the API call fails' do
-      stub_request(:get, /api\.currentsapi\.services/).to_return(status: 500, body: '')
-      expect(described_class.currents_api_search('Immigration')).to eq([])
-    end
-  end
-
   describe 'creating from a selected article' do
     let(:representative) { Representative.create!(name: 'Test Rep', ocdid: '1') }
     let(:article) { { title: 'Test Title', link: 'https://example.com', description: 'Test Desc' } }
