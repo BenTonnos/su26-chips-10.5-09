@@ -23,9 +23,23 @@ class MyNewsItemsController < ApplicationController
   def edit; end
 
   def create
-    @news_item = NewsItem.new(news_item_params)
+    selected_index = params[:article_index]
+    article = params.dig(:articles, selected_index) if selected_index.present?
+
+    @news_item = if article.present?
+                   NewsItem.new(
+                     title: article[:title],
+                     link: article[:link],
+                     description: article[:description],
+                     issue: params.dig(:news_item, :issue),
+                     representative_id: params.dig(:news_item, :representative_id) || @representative&.id
+                   )
+                 else
+                   NewsItem.new(news_item_params)
+                 end
+
     if @news_item.save
-      redirect_to representative_news_item_path(@representative, @news_item),
+      redirect_to representative_news_item_path(@news_item.representative, @news_item),
                   notice: 'News item was successfully created.'
     else
       render :new, status: :unprocessable_entity
