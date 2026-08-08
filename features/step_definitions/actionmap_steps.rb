@@ -50,5 +50,9 @@ Then /I should see (\d+) (?:states|counties)/i do |count|
 end
 
 Then /I should see representative results/i do
-  expect(page).to have_content('Francisco De La Riega')
+  expect(page).to have_content('Search Results')
+end
+
+When /I search for zipcode "(\d{5})"/i do |zip_code|
+  fill_in 'Enter a location', with: zip_code
 end

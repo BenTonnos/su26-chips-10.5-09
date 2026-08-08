@@ -29,19 +29,36 @@ Scenario: The Representatives Page
 ## CHIPS 10.5 -- add iteration 1/2 additional pages here.
 ## You may want to set up conditions like searching for data, etc.
 
-## CS169: Add the first page here.
-# Be sure to tag the Scenario with @a11y
-# @a11y
-# Scenario: ...
 
-## CS169: Add the second page here.
-# @a11y
-# Scenario: ...
+@a11y
+Scenario: The State Map Page
+    Given I am on the state page for "CA"
+    Then I should see "California"
+    And the page should be axe clean
 
-## CS169: Add the third page here.
-# @a11y
-# Scenario: ...
+@a11y
+Scenario: The search Representative's page 
+    Given I am on the representatives page
+    When I search for zipcode "94706"
+    And I press "Search"
+    Then I should see representative results
+    And the page should be axe clean
 
-## CS169: Add the fourth page here.
-# @a11y
-# Scenario: ...
+@a11y
+Scenario: The New News Article Page
+    Given a representative exists
+    And I visit a representative's news items page
+    When I follow "Add News Article"
+    Then I should see "New news article"
+    And the page should be axe clean
+
+@a11y
+Scenario: The News Article Search Page
+    Given a representative exists
+    And I visit a representative's news items page
+    When I follow "Add News Article"
+    And I select a representative
+    And I select an issue
+    And I press "Search"
+    Then I should see the selected issue
+    And the page should be axe clean
