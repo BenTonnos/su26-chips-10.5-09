@@ -72,7 +72,7 @@ RSpec.describe NewsItem do
       expect(described_class.currents_api_search('Immigration')).to eq([])
     end
   end
-  
+
   describe 'creating from a selected article' do
     let(:representative) { Representative.create!(name: 'Test Rep', ocdid: '1') }
     let(:article) { { title: 'Test Title', link: 'https://example.com', description: 'Test Desc' } }
@@ -80,7 +80,6 @@ RSpec.describe NewsItem do
     it 'builds and saves a valid news item from selected article data' do
       news_item = described_class.new(article.merge(issue: 'Immigration', representative_id: representative.id))
       expect(news_item.save).to be true
-
     end
   end
 end
