@@ -70,7 +70,8 @@ RSpec.describe NewsItem do
     it 'returns an empty array when the API call fails' do
       stub_request(:get, /api\.currentsapi\.services/).to_return(status: 500, body: '')
       expect(described_class.currents_api_search('Immigration')).to eq([])
-      
+    end
+  end
   describe 'creating from a selected article' do
     let(:representative) { Representative.create!(name: 'Test Rep', ocdid: '1') }
     let(:article) { { title: 'Test Title', link: 'https://example.com', description: 'Test Desc' } }
