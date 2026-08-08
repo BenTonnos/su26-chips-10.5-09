@@ -48,4 +48,28 @@ class NewsItem < ApplicationRecord
       'Equal Pay'
     ]
   end
+
+  def self.currents_api_search(issue)
+    currents_api_key = ENV.fetch('CURRENTS_API_KEY', Rails.application.credentials[:CURRENTS_API_KEY])
+    raise ArgumentError, 'Missing CURRENTS_API_KEY' if currents_api_key.blank?
+
+    response = Faraday.get('https://api.currentsapi.services/v1/search') do |req|
+      req.params['keywords'] = issue
+      req.params['apiKey'] = currents_api_key
+      req.params['language'] = 'en'
+    end
+
+    return [] unless response.success?
+
+    data = JSON.parse(response.body)
+    news = data['news'] || []
+
+    news.first(5).map do |article|
+      {
+        title: article['title'],
+        link: article['url'],
+        description: article['description']
+      }
+    end
+  end
 end

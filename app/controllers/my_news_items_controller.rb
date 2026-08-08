@@ -17,6 +17,7 @@ class MyNewsItemsController < ApplicationController
     end
 
     @issue = params.dig(:news_item, :issue)
+    @articles = @issue.present? ? NewsItem.currents_api_search(@issue) : []
   end
 
   def edit; end

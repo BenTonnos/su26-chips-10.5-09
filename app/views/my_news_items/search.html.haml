@@ -13,3 +13,28 @@
     = @issue
   - else
     Not submitted
+
+- if @articles.present?
+  %h2 Select an article:
+  = form_with url: representative_new_my_news_item_path(@selected_representative), method: :post do |f|
+    = hidden_field_tag 'news_item[representative_id]', @selected_representative&.id
+    = hidden_field_tag 'news_item[issue]', @issue
+    - @articles.each_with_index do |article, index|
+      .form-check.mb-3
+        = radio_button_tag 'article_index', index, index.zero?, class: 'form-check-input'
+        = label_tag "article_index_#{index}", class: 'form-check-label' do
+          %p
+            %strong Title:
+            = article[:title]
+          %p
+            %strong Link:
+            = link_to article[:link], article[:link], target: '_blank', rel: 'noopener'
+          %p
+            %strong Description:
+            = article[:description]
+      - article.each do |key, value|
+        = hidden_field_tag "articles[#{index}][#{key}]", value
+    .actions
+      = f.submit 'Save', class: 'btn btn-primary'
+- elsif @issue.present?
+  %p No articles found for this issue.
